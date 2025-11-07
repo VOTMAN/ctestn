@@ -9,51 +9,77 @@
 
 **Character stuffing and bit stuffing implementations (C):**
 
+bitstuff
 ```c
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-void char_stuff(const char *in, char *out) {
-    strcpy(out, "FLAG ");
-    for (int i = 0; in[i]; i++) {
-        if (strncmp(&in[i], "FLAG", 4) == 0) { strcat(out, "ESC FLAG "); i += 3; }
-        else if (strncmp(&in[i], "ESC", 3) == 0) { strcat(out, "ESC ESC "); i += 2; }
-        else { char t[2] = {in[i], 0}; strcat(out, t); }
+#include<stdio.h>
+#include<string.h>
+int main(){
+  int i,c=0,j;
+  char input[100],output[100];
+  printf("Enter the frame(0's & 1's):\n");
+  scanf("%s",input);
+  int n=strlen(input);
+  strcpy(output,"01111110");
+  j=strlen(output);
+  for(i=0;i<n;i++){
+    output[j++]=input[i];
+    if(input[i]=='1'){
+      c++;
+      if(c==5){
+        output[j++]='0';
+        c=0;
+      }
     }
-    strcat(out, " FLAG");
-}
-
-void bit_stuff(const char *in, char *out) {
-    int cnt = 0, j = 0;
-    /* Start flag (bit pattern for HDLC) */
-    strcpy(out, "01111110 ");
-    j = strlen(out);
-    for (int i = 0; in[i]; i++) {
-        out[j++] = in[i];
-        if (in[i] == '1') {
-            if (++cnt == 5) { out[j++] = '0'; cnt = 0; }
-        } else cnt = 0;
+    else{
+      c=0;
     }
-    /* End flag */
-    strcpy(out + j, " 01111110");
-    out[j + 10] = '\0';
-}
-
-int main() {
-    char data[200], cstuffed[1000], bstuffed[1000];
-    printf("Enter data: ");
-    if (!fgets(data, sizeof(data), stdin)) return 0;
-    /* remove newline */
-    data[strcspn(data, "\n")] = '\0';
-    char_stuff(data, cstuffed);
-    printf("Character Stuffed: %s\n", cstuffed);
-    bit_stuff(data, bstuffed);
-    printf("Bit Stuffed      : %s\n", bstuffed);
-    return 0;
+  }
+  strcpy(output+j,"01111110");
+  printf("After Bit Stuffing the ouput is :");
+  puts(output);
 }
 ```
 
+charstuff
+```c
+#include<stdio.h>
+#include<string.h>
+int main(){
+  char input[50],output[50];
+  printf("Enter the frame:\n");
+  scanf("%s", input);
+  int n=strlen(input);
+  strcpy(output,"flag");
+  int c=0,j=0,i;
+  j=strlen(output);
+  for(i=0;i<n;i++){
+    if(input[i]=='f' && input[i+1]=='l' && input[i+2]=='a' && input[i+3]=='g'){
+      output[j++]='e';
+      output[j++]='s';
+      output[j++]='c';
+    }
+    else if(input[i]=='e' && input[i+1]=='s' && input[i+2]=='c'){
+      output[j++]='e';
+      output[j++]='s';
+      output[j++]='c';
+    }
+    else if(input[i]=='s' && input[i+1]=='t' && input[i+2]=='x'){
+      output[j++]='e';
+      output[j++]='s';
+      output[j++]='c';
+    }
+    else if(input[i]=='e' && input[i+1]=='t' && input[i+2]=='x'){
+      output[j++]='e';
+      output[j++]='s';
+      output[j++]='c';
+    }
+    output[j++]=input[i];
+  }
+  strcpy(output+j,"flag");
+  printf("After Character Stuffing the ouput is :");
+  puts(output);
+}
+```
 ---
 
 ### ii) How to run Nmap scan
@@ -79,37 +105,57 @@ nmap -p 1-1000 8.8.8.8
 ### i) Program to compute CRC code for CRC-12, CRC-16 and CRC-CCITT
 
 ```c
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-unsigned short crc(const char *data, const char *poly, int plen) {
-    int dlen = strlen(data), i, j;
-    char temp[300] = {0};
-    strcpy(temp, data);
-    for (i = 0; i < plen - 1; i++) temp[dlen + i] = '0';
-    for (i = 0; i < dlen; i++) {
-        if (temp[i] == '1') {
-            for (j = 0; j < plen; j++)
-                temp[i + j] = (temp[i + j] == poly[j]) ? '0' : '1';
-        }
+#include<stdio.h>
+#include<string.h>
+int main(){
+  char data[100],div[100],temp[100],div1[100],rem[100],quot[100];
+  printf("Enter the data:");
+  scanf("%s",data);
+  
+  printf("\nEnter the divisor:");
+  scanf("%s",div);
+  printf("\n");
+  
+  int datalen=strlen(data);
+  int divlen=strlen(div);
+  
+  for(int i=0;i<divlen-1;i++){
+    data[datalen+i]='0';
+  }
+  data[datalen+divlen-1]='\0';
+  
+  strcpy(temp,data);
+  strcpy(div1,div);
+  
+  for(int i=0;i<datalen;i++){
+    quot[i]=temp[0];
+    if(quot[i]=='0'){
+      for(int j=0;j<divlen;j++){
+        div[j]='0';
+      }
     }
-    return (unsigned short)strtol(temp + dlen, NULL, 2);
-}
-
-int main() {
-    char data[200];
-    printf("Enter binary data: ");
-    scanf("%199s", data);
-    /* Note: polynomial strings must be provided in binary representation including the leading 1 */
-    printf("CRC-12   : %03X\n", crc(data, "1100000001111", 13));
-    printf("CRC-16   : %04X\n", crc(data, "11000000000000101", 17));
-    printf("CRC-CCITT: %04X\n", crc(data, "10001000000100001", 17));
-    return 0;
+    else{
+      strcpy(div,div1);
+    }
+    
+    for(int j=1;j<divlen;j++){
+      rem[j-1]=(temp[j]==div[j])?'0':'1';
+    }
+    rem[divlen-1]=data[i+divlen];
+    rem[divlen]='\0';
+    strcpy(temp,rem);
+  }
+  quot[datalen]='\0';
+  strcpy(rem,temp);
+  printf("Quotient: %s\n",quot);
+  printf("Remainder: %s\n",rem);
+  for(int i=0;i<divlen;i++){
+    data[datalen+i]=rem[i];
+  }
+  data[datalen+divlen-1]='\0';
+  printf("Final data: %s",data);
 }
 ```
-
-> **Note:** Polynomial representations and CRC conventions (initial value, final XOR, reflection) vary. Confirm your syllabus convention if required.
 
 ---
 
@@ -131,31 +177,32 @@ Accuracy depends on privileges, available open services and network conditionsâ€
 ### i) Sliding Window + Go-Back-N
 
 ```c
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#define WS 4
-#define TF 12
-
-int main() {
-    int frames[TF], i;
-    for (i = 0; i < TF; i++) frames[i] = i;
-    int base = 0;
-    srand(time(0));
-    while (base < TF) {
-        for (i = base; i < base + WS && i < TF; i++)
-            printf("Sent frame %d\n", frames[i]);
-        if (rand() % 5 == 0) printf("Timeout -> Resend from %d\n", base);
-        else {
-            int ack = base + (rand() % WS);
-            if (ack >= TF) ack = TF - 1;
-            printf("ACK %d received\n", ack);
-            base = ack + 1;
-        }
+#include<stdio.h>
+int main(){
+  int i,w,f;
+  printf("Enter the window size: ");
+  scanf("%d",&w);
+  printf("\n Enter the frames size to sent: ");
+  scanf("%d",&f);
+  int frames[f+1];
+  printf("\n Enter the frames: ");
+  for(i=0;i<f;i++){
+    scanf("%d",&frames[i]);
+  }
+  printf("\nThe frames are sent to sender by using sliding window protocol");
+  printf("\nThe %d no'of frames are sending to the receiver and sender watis until receives acknowledgement from receiver\n",w);
+  for(int i=0;i<f;i++){
+    if((i+1)%w==0){
+      printf("%d \n",frames[i]);
+      printf("The Acknowledgement of above frames are received by receiver\n");
     }
-    printf("Transmission Complete!\n");
-    return 0;
+    else{
+      printf("%d ",frames[i]);
+    }
+  }
+  if(f%w!=0){
+    printf("\nThe Acknowledgement of above frames are received by receiver");
+  }
 }
 ```
 
@@ -183,37 +230,53 @@ tcpdump -i eth0
 ### i) Dijkstraâ€™s Algorithm
 
 ```c
-#include <stdio.h>
-#define V 5
-#define INF 999
-
-void dijkstra(int g[V][V], int src) {
-    int dist[V], vis[V] = {0}, min, u = 0, v, i;
-    for (i = 0; i < V; i++) dist[i] = INF;
-    dist[src] = 0;
-    for (i = 0; i < V; i++) {
-        min = INF;
-        for (v = 0; v < V; v++)
-            if (!vis[v] && dist[v] < min) { min = dist[v]; u = v; }
-        vis[u] = 1;
-        for (v = 0; v < V; v++)
-            if (!vis[v] && g[u][v] && dist[u] + g[u][v] < dist[v])
-                dist[v] = dist[u] + g[u][v];
+#include<stdio.h>
+int main(){
+  int a[10][10],path[10][10],p,st=1,stp,edp,index,t[10],min;
+  
+  printf("Enter the cost Matrix:\n");
+  for(int i=1;i<=5;i++){
+    for(int j=1;j<=5;j++){
+      scanf("%d",&a[i][j]);
     }
-    printf("Node\tDistance\n");
-    for (i = 0; i < V; i++) printf("%d\t%d\n", i, dist[i]);
-}
-
-int main() {
-    int g[V][V] = {
-        {0,10,0,30,100},
-        {10,0,50,0,0},
-        {0,50,0,20,10},
-        {30,0,20,0,60},
-        {100,0,10,60,0}
-    };
-    dijkstra(g, 0);
-    return 0;
+  }
+  
+  printf("\nEnter the number of possible paths:");
+  scanf("%d",&p);
+  
+  printf("\nEnter the possible paths:");
+  for(int i=1;i<=p;i++){
+    for(int j=1;j<=5;j++){
+      scanf("%d",&path[i][j]);
+    }
+  }
+  
+  for(int i=1;i<=p;i++){
+    t[i]=0;
+    stp=st;
+    for(int j=1;j<=5;j++){
+      edp=path[i][j+1];
+      if(edp==0){
+        break;
+      }
+      t[i]+=a[stp][edp];
+      stp=edp;
+    }
+  }
+  min=t[1];
+  index=1;
+  for(int i=1;i<=p;i++){
+    if(min>t[i]){
+      min=t[i];
+      index=i;
+    }
+  }
+  
+  printf("\nMinimum cost: %d",min);
+  printf("\nMinimum cost path:");
+  for(int i=0;i<=5;i++){
+    printf("--> %d",path[index][i]);
+  }
 }
 ```
 
@@ -371,35 +434,49 @@ Time    Pkt     Bucket  Action
 ### i) Frame Sorting in Buffers
 
 ```c
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include<stdio.h>
+#include<time.h>
 
-typedef struct { int seq; char data[50]; } Frame;
-
-void sort_frames(Frame f[], int n) {
-    Frame temp;
-    for (int i = 0; i < n-1; i++)
-        for (int j = 0; j < n-i-1; j++)
-            if (f[j].seq > f[j+1].seq) {
-                temp = f[j]; f[j] = f[j+1]; f[j+1] = temp;
-            }
+void shuffle(int arr[], int n){
+  srand(time(NULL));
+  for (int i=0;i<n;i++){
+    int j=rand()%(i+1);
+    int t=arr[i];
+    arr[i]=arr[j];
+    arr[j]=t;
+  }
 }
 
-int main() {
-    int n; printf("Frames: "); scanf("%d",&n);
-    Frame *f = malloc(n * sizeof(Frame));
-    for (int i = 0; i < n; i++) {
-        printf("Seq %d: ", i+1); scanf("%d", &f[i].seq);
-        printf("Data %d: ", i+1); scanf("%s", f[i].data);
+void bubblesort(int arr[], int n){
+  for(int i=0;i<n-1;i++){
+    for(int j=0;j<n-i-1;j++){
+      if(arr[j]>arr[j+1]){
+        int t=arr[j];
+        arr[j]=arr[j+1];
+        arr[j+1]=t;
+      }
     }
-    printf("\nBefore:\n");
-    for (int i = 0; i < n; i++) printf("%d: %s\n", f[i].seq, f[i].data);
-    sort_frames(f, n);
-    printf("\nAfter Sorting:\n");
-    for (int i = 0; i < n; i++) printf("%d: %s\n", f[i].seq, f[i].data);
-    free(f);
-    return 0;
+  }
+}
+
+int main(){
+  int p,input[100];
+  printf("Enter the size of packets:");
+  scanf("%d",&p);
+  printf("\nEnter the frame: ");
+  for(int i=0;i<p;i++){
+    scanf("%d",&input[i]);
+  }
+  shuffle(input,p);
+  printf("\nReceived frame:");
+  for(int i=0;i<p;i++){
+    printf("%d ",input[i]);
+  }
+  bubblesort(input,p);
+  printf("\nFrame after sorting:");
+   for(int i=0;i<p;i++){
+    printf("%d ",input[i]);
+  }
 }
 ```
 
