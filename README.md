@@ -111,6 +111,7 @@ int main(){
   char data[100],div[100],temp[100],div1[100],rem[100],quot[100];
   printf("Enter the data:");
   scanf("%s",data);
+<<<<<<< HEAD
 
   printf("\nEnter the divisor:");
   scanf("%s",div);
@@ -119,25 +120,50 @@ int main(){
   int datalen=strlen(data);
   int divlen=strlen(div);
 
+=======
+  
+  printf("\nEnter the divisor:");
+  scanf("%s",div);
+  printf("\n");
+  
+  int datalen=strlen(data);
+  int divlen=strlen(div);
+  
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
   for(int i=0;i<divlen-1;i++){
     data[datalen+i]='0';
   }
   data[datalen+divlen-1]='\0';
+<<<<<<< HEAD
 
   strcpy(temp,data);
   strcpy(div1,div);
 
+=======
+  
+  strcpy(temp,data);
+  strcpy(div1,div);
+  
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
   for(int i=0;i<datalen;i++){
     quot[i]=temp[0];
     if(quot[i]=='0'){
       for(int j=0;j<divlen;j++){
         div[j]='0';
       }
+<<<<<<< HEAD
     }
     else{
       strcpy(div,div1);
     }
 
+=======
+    }
+    else{
+      strcpy(div,div1);
+    }
+    
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
     for(int j=1;j<divlen;j++){
       rem[j-1]=(temp[j]==div[j])?'0':'1';
     }
@@ -233,24 +259,39 @@ tcpdump -i eth0
 #include<stdio.h>
 int main(){
   int a[10][10],path[10][10],p,st=1,stp,edp,index,t[10],min;
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
   printf("Enter the cost Matrix:\n");
   for(int i=1;i<=5;i++){
     for(int j=1;j<=5;j++){
       scanf("%d",&a[i][j]);
     }
   }
+<<<<<<< HEAD
 
   printf("\nEnter the number of possible paths:");
   scanf("%d",&p);
 
+=======
+  
+  printf("\nEnter the number of possible paths:");
+  scanf("%d",&p);
+  
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
   printf("\nEnter the possible paths:");
   for(int i=1;i<=p;i++){
     for(int j=1;j<=5;j++){
       scanf("%d",&path[i][j]);
     }
   }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
   for(int i=1;i<=p;i++){
     t[i]=0;
     stp=st;
@@ -271,7 +312,11 @@ int main(){
       index=i;
     }
   }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> c4a1fe9544b558c6ba2d7e9811e09b25c1274b39
   printf("\nMinimum cost: %d",min);
   printf("\nMinimum cost path:");
   for(int i=0;i<=5;i++){
